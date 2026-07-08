@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.22
 
 LABEL maintainer="rajamummidi9 <mummidiraja9@gmail.com>"
 LABEL org.opencontainers.image.source="https://github.com/rajamummidi9/network-multitool"
@@ -7,13 +7,15 @@ LABEL org.opencontainers.image.licenses="MIT"
 
 EXPOSE 80 443 1180 11443
 
-# Install networking tools and generate self-signed SSL certificates.
-# Packages listed alphabetically for readability and maintenance.
+# Networking and troubleshooting tools (alphabetical).
 RUN apk update \
-    && apk add --no-cache bash bind-tools busybox-extras curl \
-                iproute2 iputils jq mtr \
-                net-tools nginx openssl \
-                perl-net-telnet procps tcpdump tcptraceroute wget \
+    && apk add --no-cache \
+        bash bind-tools busybox-extras curl ethtool \
+        iproute2 iputils iperf3 jq lsof mtr nmap-ncat \
+        net-tools nginx openssh-client openssl \
+        perl-net-telnet procps rsync socat tcpdump \
+        tcptraceroute traceroute wget \
+    && rm -rf /var/cache/apk/* \
     && mkdir -p /certs /docker \
     && chmod 700 /certs \
     && openssl req \
@@ -21,11 +23,13 @@ RUN apk update \
         -keyout /certs/server.key -out /certs/server.crt -subj '/CN=localhost'
 
 COPY index.html /usr/share/nginx/html/
-COPY press-release.md /root/
-COPY press-release.html /root/
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /docker/entrypoint.sh
-RUN chmod +x /docker/entrypoint.sh
+COPY scripts/tools-check.sh /docker/tools-check.sh
+RUN chmod +x /docker/entrypoint.sh /docker/tools-check.sh
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
+    CMD curl -fsS "http://127.0.0.1:${HTTP_PORT:-80}/" >/dev/null || exit 1
 
 CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
 ENTRYPOINT ["/bin/sh", "/docker/entrypoint.sh"]

@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+commonLabels:
+  app.kubernetes.io/name: network-multitool
+  app.kubernetes.io/managed-by: rajamummidi9
+
+images:
+  - name: rajamummidi9/network-multitool
+    newTag: latest

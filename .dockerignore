@@ -3,4 +3,6 @@
 README.md
 docker-compose.yml
 kubernetes/
-scripts/
+Makefile
+press-release.md
+press-release.html
