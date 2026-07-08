@@ -1,5 +1,7 @@
 # Network MultiTool
 
+![Network MultiTool overview](docs/images/network-multitool-explainer.png)
+
 Multi-arch network troubleshooting image for Docker, Kubernetes, and OpenShift.
 
 Maintained by **rajamummidi9** — mummidiraja9@gmail.com
