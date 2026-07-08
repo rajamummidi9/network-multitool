@@ -1,0 +1,45 @@
+FROM alpine:3.22
+
+LABEL maintainer="rajamummidi9 <mummidiraja9@gmail.com>"
+LABEL org.opencontainers.image.source="https://github.com/rajamummidi9/network-multitool"
+LABEL org.opencontainers.image.description="OpenShift-compatible network troubleshooting multitool"
+LABEL org.opencontainers.image.licenses="MIT"
+
+EXPOSE 1180 11443
+
+RUN apk update \
+    && apk add --no-cache \
+        bash bind-tools busybox-extras curl \
+        iproute2 iputils jq mtr \
+        net-tools nginx openssh-client openssl \
+        perl-net-telnet procps rsync tcpdump tcptraceroute wget \
+    && rm -rf /var/cache/apk/* \
+    && chmod u+s /sbin/apk /bin/busybox /usr/sbin/arping \
+        /usr/bin/tcpdump /usr/bin/tcptraceroute \
+    && mkdir -p /certs /docker /usr/share/nginx/html \
+    && openssl req \
+        -x509 -newkey rsa:2048 -nodes -days 3650 \
+        -keyout /certs/server.key -out /certs/server.crt -subj '/CN=localhost'
+
+COPY index.html /usr/share/nginx/html/
+COPY nginx-openshift.conf /etc/nginx/nginx.conf
+COPY entrypoint-openshift.sh /docker/entrypoint.sh
+
+RUN chgrp -R root /etc/nginx /usr/share/nginx /var/lib/nginx /var/log/nginx \
+        /run /certs /docker \
+    && chmod -R g=u /etc/nginx /usr/share/nginx /var/lib/nginx /var/log/nginx \
+        /run /docker /etc/passwd \
+    && chmod 0750 /certs \
+    && chmod 0640 /certs/* \
+    && chmod +x /docker/entrypoint.sh
+
+USER 1001
+ENV RUNTIME_USER_NAME=okduser
+ENV HTTP_PORT=1180
+ENV HTTPS_PORT=11443
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
+    CMD curl -fsS "http://127.0.0.1:${HTTP_PORT}/" >/dev/null || exit 1
+
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/bin/sh", "/docker/entrypoint.sh"]

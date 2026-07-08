@@ -1,0 +1,46 @@
+# OpenShift / restricted SCC deployment (non-root, ports 1180/11443).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-multitool-openshift
+  labels:
+    app: network-multitool
+    variant: openshift
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-multitool
+      variant: openshift
+  template:
+    metadata:
+      labels:
+        app: network-multitool
+        variant: openshift
+    spec:
+      containers:
+        - name: network-multitool
+          image: rajamummidi9/network-multitool:openshift
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1180
+              name: http
+            - containerPort: 11443
+              name: https
+          env:
+            - name: HTTP_PORT
+              value: "1180"
+            - name: HTTPS_PORT
+              value: "11443"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

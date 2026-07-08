@@ -1,6 +1,6 @@
 # Network MultiTool
 
-A compact Docker image packed with networking utilities for Kubernetes and container troubleshooting. Includes nginx (HTTP/HTTPS), curl, dig, ping, tcpdump, mtr, socat, iperf3, and more.
+Multi-arch network troubleshooting image for Docker, Kubernetes, and OpenShift.
 
 Maintained by **rajamummidi9** — mummidiraja9@gmail.com
 
@@ -10,124 +10,65 @@ Maintained by **rajamummidi9** — mummidiraja9@gmail.com
 | GitHub | https://github.com/rajamummidi9/network-multitool |
 | Docker Hub | https://hub.docker.com/r/rajamummidi9/network-multitool |
 
+## Image variants
+
+| Tag | Size (approx) | Use case |
+|-----|---------------|----------|
+| `latest`, `minimal` | ~40 MB | Default — lean core toolkit |
+| `extra` | ~120 MB | socat, nc, iperf3, ethtool, lsof, traceroute |
+| `openshift` | ~40 MB | Non-root, ports **1180** / **11443** |
+
+**Platforms:** `linux/amd64`, `linux/arm64` (published via GitHub Actions)
+
 ## Quick start
 
-### Docker
-
 ```bash
-# Interactive shell
-docker run --rm -it rajamummidi9/network-multitool /bin/bash
+# Minimal (default)
+docker run --rm -it rajamummidi9/network-multitool:latest /bin/bash
 
-# List bundled tools
-docker run --rm rajamummidi9/network-multitool /docker/tools-check.sh
+# Extra toolkit
+docker run --rm -it rajamummidi9/network-multitool:extra /bin/bash
 
-# Run nginx on default ports 80/443
-docker run -p 8080:80 -p 8443:443 -d rajamummidi9/network-multitool
-
-# Custom ports via env vars
-docker run -e HTTP_PORT=1180 -e HTTPS_PORT=11443 \
-  -p 1180:1180 -p 11443:11443 -d rajamummidi9/network-multitool
-```
-
-### Docker Compose
-
-```bash
-docker compose up -d
-# HTTP: http://localhost:8080  HTTPS: https://localhost:8443
+# OpenShift-compatible
+docker run --rm -it -p 1180:1180 rajamummidi9/network-multitool:openshift /bin/bash
 ```
 
 ### Kubernetes
 
 ```bash
-# Deployment + ClusterIP Service
-kubectl apply -k kubernetes/
-
-# One-off debug pod (sleep infinity, exec in)
-kubectl apply -f kubernetes/debug-pod.yaml
-kubectl exec -it network-multitool-debug -- /bin/bash
-
-# DaemonSet on every node (hostNetwork, ports 1180/11443)
-kubectl apply -f kubernetes/daemonset.yaml
+kubectl apply -k kubernetes/                              # minimal deployment
+kubectl apply -f kubernetes/debug-pod.yaml                # debug pod
+kubectl apply -f kubernetes/openshift-deployment.yaml     # OpenShift variant
+kubectl apply -f kubernetes/daemonset.yaml                # hostNetwork DaemonSet
 ```
 
-## Build and push
+## Build locally
 
 ```bash
-make build
-make push TAG=latest
-# or
-./scripts/build-and-push.sh v1.1.0
+make build-minimal    # ~40 MB
+make build-extra      # ~120 MB
+make build-openshift
 ```
 
-## Included tools
-
-| Category | Tools |
-|----------|-------|
-| DNS | `dig`, `nslookup`, `host` |
-| HTTP/TLS | `curl`, `wget`, `nginx`, `openssl` |
-| Connectivity | `ping`, `traceroute`, `tcptraceroute`, `mtr`, `telnet` |
-| Ports & sockets | `nc` (nmap-ncat), `socat`, `ss`, `netstat`, `lsof` |
-| Capture & trace | `tcpdump`, `ethtool` |
-| Throughput | `iperf3` |
-| Remote copy | `rsync`, `scp`/`ssh` (openssh-client) |
-| Shell & parse | `bash`, `jq`, `ip`, `ifconfig`, `procps` |
-
-Run `/docker/tools-check.sh` inside the container for the full list.
-
-## Troubleshooting recipes
+## Multi-arch push (requires Docker Hub login + buildx)
 
 ```bash
-# DNS lookup
-dig +short my-service.namespace.svc.cluster.local
-
-# Test TCP to a service
-nc -zv my-service 8080
-
-# HTTP health check
-curl -v http://my-service:8080/health
-
-# TLS handshake
-openssl s_client -connect my-service:443 -servername my-service
-
-# Bandwidth test (needs iperf3 server on target)
-iperf3 -c iperf-server -p 5201
-
-# Port relay (debug sidecar pattern)
-socat TCP-LISTEN:8080,fork TCP:backend:8080
-
-# Packet capture (short sample)
-tcpdump -i any -c 20 host 10.0.0.1
+./scripts/build-and-push.sh minimal latest
+./scripts/build-and-push.sh extra
+./scripts/build-and-push.sh openshift
+./scripts/build-and-push.sh all latest
 ```
 
-## Environment variables
+## CI/CD
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `HTTP_PORT` | `80` | nginx HTTP listen port |
-| `HTTPS_PORT` | `443` | nginx HTTPS listen port |
+See [docs/CI-SETUP.md](docs/CI-SETUP.md) for GitHub Actions secrets (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
 
-## CI/CD (optional)
+## Tools by variant
 
-Add these GitHub repository secrets for automated builds on push:
+**minimal / latest:** bash, curl, wget, dig, nslookup, ping, mtr, tcpdump, jq, ip, ifconfig, netstat, telnet, nginx, openssl, ssh, rsync
 
-| Secret | Value |
-|--------|-------|
-| `DOCKERHUB_USERNAME` | `rajamummidi9` |
-| `DOCKERHUB_TOKEN` | Docker Hub access token |
-
-## Optional future additions
-
-Not included to keep the image small (~90–100 MB). Add if your team needs them:
-
-| Tool | Use case | Alpine package |
-|------|----------|----------------|
-| `nmap` | Port scanning | `nmap` |
-| `httpie` | Friendly HTTP CLI | `httpie` |
-| `grpcurl` | gRPC debugging | manual binary |
-| `redis-cli` | Redis connectivity | `redis` |
-| `postgresql-client` | DB connectivity | `postgresql-client` |
-| `kafkacat` | Kafka connectivity | `kcat` |
+**extra (adds):** socat, nc, iperf3, ethtool, lsof, traceroute
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Copyright (c) 2026 rajamummidi9.
+MIT — Copyright (c) 2026 rajamummidi9
