@@ -13,7 +13,7 @@ spec:
   containers:
     - name: network-multitool
       image: rajamummidi9/network-multitool:latest
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       command: ["/bin/bash", "-c", "sleep infinity"]
       resources:
         requests:

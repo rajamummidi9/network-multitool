@@ -1,8 +1,41 @@
 # Network MultiTool
 
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-rajamummidi9%2Fnetwork--multitool-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/rajamummidi9/network-multitool)
+[![GitHub](https://img.shields.io/badge/GitHub-network--multitool-181717?logo=github)](https://github.com/rajamummidi9/network-multitool)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Multi-arch](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-blue)]()
+
+**One image. Every network tool. Any Kubernetes cluster.**
+
 ![Network MultiTool overview](docs/images/network-multitool-explainer.png)
 
-Multi-arch network troubleshooting image for Docker, Kubernetes, and OpenShift.
+---
+
+## Copy & paste — start debugging in 10 seconds
+
+### Kubernetes (no install, no clone)
+
+```bash
+kubectl run netdebug --rm -it --restart=Never \
+  --image=rajamummidi9/network-multitool \
+  --image-pull-policy=Always -- bash
+```
+
+### Docker
+
+```bash
+docker run --rm -it rajamummidi9/network-multitool bash
+```
+
+### One-liner script
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rajamummidi9/network-multitool/main/scripts/debug.sh | bash
+```
+
+> Full quick-start guide: [QUICKSTART.md](QUICKSTART.md)
+
+---
 
 Maintained by **rajamummidi9** — mummidiraja9@gmail.com
 
@@ -14,62 +47,59 @@ Maintained by **rajamummidi9** — mummidiraja9@gmail.com
 
 ## Image variants
 
-| Tag | Size (approx) | Use case |
-|-----|---------------|----------|
-| `latest`, `minimal` | ~40 MB | Default — lean core toolkit |
-| `extra` | ~120 MB | socat, nc, iperf3, ethtool, lsof, traceroute |
-| `openshift` | ~40 MB | Non-root, ports **1180** / **11443** |
+| Tag | Size | Use case |
+|-----|------|----------|
+| `latest`, `minimal` | ~117 MB | Default — lean core toolkit |
+| `extra` | ~120 MB | + socat, nc, iperf3, ethtool, lsof, traceroute |
+| `openshift` | ~119 MB | Non-root, ports **1180** / **11443** |
 
-**Platforms:** `linux/amd64`, `linux/arm64` (published via GitHub Actions)
+**Platforms:** `linux/amd64`, `linux/arm64`
 
-## Quick start
-
-```bash
-# Minimal (default)
-docker run --rm -it rajamummidi9/network-multitool:latest /bin/bash
-
-# Extra toolkit
-docker run --rm -it rajamummidi9/network-multitool:extra /bin/bash
-
-# OpenShift-compatible
-docker run --rm -it -p 1180:1180 rajamummidi9/network-multitool:openshift /bin/bash
-```
-
-### Kubernetes
+## Kubernetes manifests (no clone needed)
 
 ```bash
-kubectl apply -k kubernetes/                              # minimal deployment
-kubectl apply -f kubernetes/debug-pod.yaml                # debug pod
-kubectl apply -f kubernetes/openshift-deployment.yaml     # OpenShift variant
-kubectl apply -f kubernetes/daemonset.yaml                # hostNetwork DaemonSet
+# Debug pod (persistent — exec in anytime)
+kubectl apply -f https://raw.githubusercontent.com/rajamummidi9/network-multitool/main/kubernetes/debug-pod.yaml
+kubectl exec -it network-multitool-debug -- bash
+
+# Deployment + Service
+kubectl apply -k https://github.com/rajamummidi9/network-multitool/kubernetes/
+
+# DaemonSet on every node (hostNetwork)
+kubectl apply -f https://raw.githubusercontent.com/rajamummidi9/network-multitool/main/kubernetes/daemonset.yaml
 ```
+
+## Works everywhere
+
+| Platform | Command |
+|----------|---------|
+| AWS EKS | `kubectl run netdebug --rm -it --image=rajamummidi9/network-multitool -- bash` |
+| Azure AKS | same |
+| Google GKE | same |
+| Kind / Minikube | same |
+| OpenShift | use `:openshift` tag |
+| Docker local | `docker run --rm -it rajamummidi9/network-multitool bash` |
+
+## Tools included
+
+**minimal:** curl, wget, dig, nslookup, ping, mtr, tcpdump, jq, ip, netstat, telnet, nginx, openssl, ssh, rsync
+
+**extra adds:** socat, nc, iperf3, ethtool, lsof, traceroute
 
 ## Build locally
 
 ```bash
-make build-minimal    # ~40 MB
-make build-extra      # ~120 MB
+make build-minimal
+make build-extra
 make build-openshift
 ```
 
-## Multi-arch push (requires Docker Hub login + buildx)
+## Docs
 
-```bash
-./scripts/build-and-push.sh minimal latest
-./scripts/build-and-push.sh extra
-./scripts/build-and-push.sh openshift
-./scripts/build-and-push.sh all latest
-```
-
-## CI/CD
-
-See [docs/CI-SETUP.md](docs/CI-SETUP.md) for GitHub Actions secrets (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
-
-## Tools by variant
-
-**minimal / latest:** bash, curl, wget, dig, nslookup, ping, mtr, tcpdump, jq, ip, ifconfig, netstat, telnet, nginx, openssl, ssh, rsync
-
-**extra (adds):** socat, nc, iperf3, ethtool, lsof, traceroute
+- [QUICKSTART.md](QUICKSTART.md) — copy-paste commands
+- [docs/blog-post.md](docs/blog-post.md) — blog article
+- [docs/social-posts.md](docs/social-posts.md) — LinkedIn / Slack copy
+- [docs/CI-SETUP.md](docs/CI-SETUP.md) — CI secrets
 
 ## License
 
