@@ -1,0 +1,27 @@
+# Ephemeral debug pod — use for cluster network troubleshooting.
+# kubectl apply -f kubernetes/debug-pod.yaml
+# kubectl exec -it network-multitool-debug -- /bin/bash
+apiVersion: v1
+kind: Pod
+metadata:
+  name: network-multitool-debug
+  labels:
+    app: network-multitool
+    role: debug
+spec:
+  restartPolicy: Never
+  containers:
+    - name: network-multitool
+      image: rajamummidi9/network-multitool:latest
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash", "-c", "sleep infinity"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+      securityContext:
+        capabilities:
+          add: ["NET_ADMIN"]

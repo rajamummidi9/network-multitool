@@ -1,0 +1,22 @@
+services:
+  network-multitool:
+    image: rajamummidi9/network-multitool:latest
+    build: .
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      HTTP_PORT: ""
+      HTTPS_PORT: ""
+
+  # Alternate ports (matches k8s DaemonSet defaults)
+  network-multitool-alt:
+    image: rajamummidi9/network-multitool:latest
+    build: .
+    profiles: ["alt-ports"]
+    ports:
+      - "1180:1180"
+      - "11443:11443"
+    environment:
+      HTTP_PORT: "1180"
+      HTTPS_PORT: "11443"

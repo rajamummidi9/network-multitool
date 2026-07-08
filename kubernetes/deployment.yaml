@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-multitool
+  labels:
+    app: network-multitool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-multitool
+  template:
+    metadata:
+      labels:
+        app: network-multitool
+    spec:
+      containers:
+        - name: network-multitool
+          image: rajamummidi9/network-multitool:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+            - containerPort: 443
+              name: https
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
