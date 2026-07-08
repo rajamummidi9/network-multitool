@@ -1,6 +1,6 @@
 .git
 .github
-*.md
-!README.md
+README.md
 docker-compose.yml
 kubernetes/
+scripts/
