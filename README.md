@@ -2,7 +2,7 @@
 
 A compact Docker image packed with networking utilities for Kubernetes and container troubleshooting. Includes nginx (HTTP/HTTPS), curl, dig, ping, tcpdump, mtr, traceroute, jq, wget, and more.
 
-Fork of [Praqma/Network-MultiTool](https://github.com/Praqma/Network-MultiTool). Upstream maintenance moved to [wbitt/Network-MultiTool](https://github.com/wbitt/Network-MultiTool).
+Maintained by **rajamummidi9** — mummidiraja9@gmail.com
 
 | Resource | URL |
 |----------|-----|
@@ -68,4 +68,4 @@ kubectl apply -f kubernetes/daemonset.yaml
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Original work Copyright (c) 2019 Praqma.
+MIT — see [LICENSE](LICENSE). Copyright (c) 2026 rajamummidi9.

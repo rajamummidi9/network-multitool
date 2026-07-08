@@ -1,9 +1,7 @@
 
 # Network MultiTool
 
-Fork of [Praqma/Network-MultiTool](https://github.com/Praqma/Network-MultiTool), maintained by Raja Mummidi.
-
-Originally created by Kamran Azeem and Henrik Høegh. The upstream project moved to [wbitt/Network-MultiTool](https://github.com/wbitt/Network-MultiTool).
+Maintained by **rajamummidi9** — mummidiraja9@gmail.com
 
 ## Image
 

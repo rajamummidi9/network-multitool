@@ -1,6 +1,6 @@
 FROM alpine:3.19
 
-LABEL maintainer="Raja Mummidi <rajamummidi9@gmail.com>"
+LABEL maintainer="rajamummidi9 <mummidiraja9@gmail.com>"
 LABEL org.opencontainers.image.source="https://github.com/rajamummidi9/network-multitool"
 LABEL org.opencontainers.image.description="Network troubleshooting multitool with nginx, curl, dig, tcpdump, and more"
 LABEL org.opencontainers.image.licenses="MIT"
